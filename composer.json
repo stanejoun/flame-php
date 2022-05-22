@@ -1,0 +1,38 @@
+{
+	"name": "stanejoun/light-php",
+	"description": "LightPHP It's a simple, light and easy to use PHP 8 MVC micro framework! Into the light, become the power",
+	"type": "library",
+	"require": {
+		"php": ">=8",
+		"ext-ctype": "*",
+		"ext-fileinfo": "*",
+		"ext-gettext": "*",
+		"ext-intl": "*",
+		"ext-json": "*",
+		"ext-mbstring": "*",
+		"ext-pdo": "*",
+		"ext-sodium": "*",
+		"predis/predis": "^1",
+		"firebase/php-jwt": "^5",
+		"ezyang/htmlpurifier": "^4",
+		"phpmailer/phpmailer": "^6",
+		"intervention/image": "^2"
+	},
+	"license": "MIT",
+	"keywords": [
+		"PHP Framework",
+		"MVC"
+	],
+	"autoload": {
+		"psr-4": {
+			"Stanejoun\\LightPHP\\": "src"
+		}
+	},
+	"authors": [
+		{
+			"name": "Olivier PRUDENTE",
+			"email": "olivier.prudente@gmail.com"
+		}
+	],
+	"minimum-stability": "dev"
+}
