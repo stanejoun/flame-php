@@ -49,7 +49,7 @@ abstract class AbstractModel extends AbstractCommon
 			if (!ModelDescription::$DISABLE_AUTO_ENCRYPTION && $object->modelDescription()->hasEncryptedFields()) {
 				foreach ($results as $index => $result) {
 					foreach ($result as $key => $value) {
-						if (in_array($key, $object->modelDescription()->getEncryptedFields())) {
+						if (in_array(Helper::getCamelCaseName($key), $object->modelDescription()->getEncryptedFields())) {
 							$results[$index][$key] = Security::decrypt($value);
 						}
 					}
@@ -83,7 +83,7 @@ abstract class AbstractModel extends AbstractCommon
 						$object = $currentObject;
 					} else {
 						$propertyName = $currentObject->modelDescription()->getTable();
-						if (in_array("{$propertyName}_id", $object->modelDescription()->getProperties())) {
+						if (in_array("{$propertyName}Id", $object->modelDescription()->getProperties())) {
 							if (!property_exists($object, $propertyName)) {
 								$object->{$propertyName} = null;
 							}
@@ -392,28 +392,24 @@ abstract class AbstractModel extends AbstractCommon
 	public function __call($name, $arguments): mixed
 	{
 		if (str_starts_with($name, 'get')) {
-			$name = substr($name, 3);
-			$propertyName = Helper::getSnakeCaseName($name);
+			$propertyName = substr($name, 3);
 			if (property_exists($this, $propertyName)) {
 				return $this->{$propertyName};
 			}
 		} else if (str_starts_with($name, 'set') && !empty($arguments)) {
-			$name = substr($name, 3);
-			$propertyName = Helper::getSnakeCaseName($name);
+			$propertyName = substr($name, 3);
 			if (property_exists($this, $propertyName)) {
 				$this->{$propertyName} = $arguments[0];
 				return $this;
 			}
 		} else if (str_starts_with($name, 'add') && !empty($arguments)) {
-			$name = substr($name, 3);
-			$propertyName = Helper::getSnakeCaseName($name . 's');
+			$propertyName = substr($name, 3) . 's';
 			if (property_exists($this, $propertyName) && is_array($this->{$propertyName})) {
 				$this->{$propertyName}[] = $arguments[0];
 				return $this;
 			}
 		} else if (str_starts_with($name, 'remove') && !empty($arguments)) {
-			$name = substr($name, 6);
-			$propertyName = Helper::getSnakeCaseName($name . 's');
+			$propertyName = substr($name, 6) . 's';
 			if (property_exists($this, $propertyName) && is_array($this->{$propertyName})) {
 				$collection = [];
 				foreach ($this->{$propertyName} as $value) {
@@ -447,7 +443,7 @@ abstract class AbstractModel extends AbstractCommon
 		$properties = $this->modelDescription()->getProperties();
 		foreach ($properties as $property) {
 			if (!ModelDescription::$DISABLE_AUTO_DATETIME && $this->modelDescription()->isAutoDatetime() && in_array($property, ['created_at', 'updated_at', 'deleted_at'])) {
-				if (!$this->id && $property === 'created_at' && !ModelDescription::$DISABLE_CREATED_AT) {
+				if (!$this->id && $property === 'createdAt' && !ModelDescription::$DISABLE_CREATED_AT) {
 					$propertyValue = Helper::getPropertyValue($this, $property);
 					$datetime = Helper::toString($propertyValue);
 					if (empty($datetime)) {
@@ -456,7 +452,7 @@ abstract class AbstractModel extends AbstractCommon
 					$fields[] = Helper::getSnakeCaseName($property);;
 					$bindParams[] = ':created_at';
 					$bindValues[':created_at'] = $datetime;
-				} else if ($this->id && $property === 'updated_at' && !ModelDescription::$DISABLE_UPDATED_AT) {
+				} else if ($this->id && $property === 'updatedAt' && !ModelDescription::$DISABLE_UPDATED_AT) {
 					$propertyValue = Helper::getPropertyValue($this, $property);
 					$datetime = Helper::toString($propertyValue);
 					if (empty($datetime)) {
@@ -465,7 +461,7 @@ abstract class AbstractModel extends AbstractCommon
 					$fields[] = Helper::getSnakeCaseName($property);;
 					$bindParams[] = ':updated_at';
 					$bindValues[':updated_at'] = $datetime;
-				} else if ($property === 'deleted_at' && !ModelDescription::$DISABLE_DELETED_AT) {
+				} else if ($property === 'deletedAt' && !ModelDescription::$DISABLE_DELETED_AT) {
 					$fields[] = Helper::getSnakeCaseName($property);;
 					$bindParams[] = ':deleted_at';
 					$bindValues[':deleted_at'] = null;
@@ -496,14 +492,15 @@ abstract class AbstractModel extends AbstractCommon
 			DataBase::executeQuery($insertSQL, $bindValues);
 			$this->id = DataBase::getInstance()->lastInsertId('id');
 		}
+		if (!$this->id) {
+			$this->afterInsert();
+		} else {
+			$this->afterUpdate();
+		}
+		$this->afterSave();
 	}
 
 	protected function beforeInsert(): void
-	{
-		// You must override this method to use it.
-	}
-
-	protected function beforeUpdate(): void
 	{
 		// You must override this method to use it.
 	}
@@ -513,6 +510,22 @@ abstract class AbstractModel extends AbstractCommon
 		// You must override this method to use it.
 	}
 
+	protected function afterInsert(): void
+	{
+		// You must override this method to use it.
+	}
+
+	protected function afterUpdate(): void
+	{
+		// You must override this method to use it.
+	}
+
+	protected function afterSave(): void
+	{
+		// You must override this method to use it.
+	}
+
+
 	public function delete(): void
 	{
 		if (!empty($this->id)) {
@@ -520,19 +533,25 @@ abstract class AbstractModel extends AbstractCommon
 			if (
 				!ModelDescription::$DISABLE_AUTO_DATETIME &&
 				!ModelDescription::$DISABLE_DELETED_AT &&
-				property_exists($this, 'deleted_at') &&
+				property_exists($this, 'deletedAt') &&
 				$this->modelDescription()->isAutoDatetime() &&
 				$this->modelDescription()->isSoftDelete()
 			) {
-				$deleteSQL = 'UPDATE ' . $this->modelDescription()->getTable() . ' SET deleted_at = :deleted_at WHERE id = :id ;';
-				DataBase::executeQuery($deleteSQL, [':id' => $this->id, ':deleted_at' => (new \Datetime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s')]);
+				$deleteSQL = 'UPDATE ' . $this->modelDescription()->getTable() . ' SET deleted_at = :deletedAt WHERE id = :id ;';
+				DataBase::executeQuery($deleteSQL, [':id' => $this->id, ':deletedAt' => (new \Datetime('now', new \DateTimeZone('UTC')))->format('Y-m-d H:i:s')]);
 			} else {
 				DataBase::executeQuery('DELETE FROM ' . $this->modelDescription()->getTable() . ' WHERE id = :id ;', [':id' => $this->id]);
 			}
 		}
+		$this->afterDelete();
 	}
 
 	protected function beforeDelete(): void
+	{
+		// You must override this method to use it.
+	}
+
+	protected function afterDelete(): void
 	{
 		// You must override this method to use it.
 	}

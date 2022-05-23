@@ -25,7 +25,5 @@ class Config
 		return self::$CONFIG->{$key} ?? $default;
 	}
 
-	final public function __clone(): void
-	{
-	}
+	final public function __clone(): void {}
 }

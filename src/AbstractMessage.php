@@ -8,7 +8,7 @@ abstract class AbstractMessage
 	public string $context;
 	public string $callback;
 
-	public abstract function send($queueName, $exchangeName = '', $headers = []);
+	public abstract function send($queueName, $exchangeName = '', $headers = []): void;
 
 	public function getAction(): string
 	{
