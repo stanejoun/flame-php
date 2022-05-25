@@ -65,5 +65,34 @@ class DataBase
 		self::$INSTANCE->exec('USE ' . $database);
 	}
 
+	public static function executeSqlFile(string $filename): void
+	{
+		$configPath = __DIR__ . '../db.cnf';
+		if (file_exists($configPath)) {
+			unlink($configPath);
+		}
+		$user = Config::get('database')->user;
+		$password = Config::get('database')->password;
+		$host = Config::get('database')->host;
+		$dbName = '';
+		$explodedDsn = explode(';', Config::get('database')->dsn);
+		foreach ($explodedDsn as $part) {
+			if (str_contains($part, 'dbname')) {
+				$dbNamePart = explode('=', $part);
+				$dbName = $dbNamePart[1];
+				if (Config::$ENVIRONMENT === Config::TEST_ENVIRONMENT) {
+					$dbName[1] .= '_test';
+				}
+			}
+		}
+		file_put_contents($configPath, "[client]\n", FILE_APPEND);
+		file_put_contents($configPath, "user = $user\n", FILE_APPEND);
+		file_put_contents($configPath, "password = $password\n", FILE_APPEND);
+		file_put_contents($configPath, "host = $host\n", FILE_APPEND);
+		$restoreDbReferencesData = 'mysql --defaults-extra-file=' . $configPath . ' ' . $dbName . ' < "' . realpath($filename) . '"';
+		exec($restoreDbReferencesData, $output, $resultCode);
+		unlink($configPath);
+	}
+
 	final public function __clone(): void {}
 }
