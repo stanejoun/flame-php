@@ -33,6 +33,7 @@ abstract class AbstractModel extends AbstractCommon
 				$currentTableName = $currentObject->modelDescription()->getTable();
 				$currentProperties = $currentObject->modelDescription()->getProperties();
 				foreach ($currentProperties as $property) {
+					$property = Helper::getSnakeCaseName($property);
 					$select[] = "`$currentTableName`.$property as {$currentTableName}__$property";
 				}
 			}
