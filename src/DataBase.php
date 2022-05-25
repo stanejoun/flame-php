@@ -73,10 +73,14 @@ class DataBase
 		}
 		$user = Config::get('database')->user;
 		$password = Config::get('database')->password;
-		$host = Config::get('database')->host;
+		$host = '127.0.0.1';
 		$dbName = '';
 		$explodedDsn = explode(';', Config::get('database')->dsn);
 		foreach ($explodedDsn as $part) {
+			if (str_contains($part, 'host')) {
+				$hostPart = explode('=', $part);
+				$host = $hostPart[1];
+			}
 			if (str_contains($part, 'dbname')) {
 				$dbNamePart = explode('=', $part);
 				$dbName = $dbNamePart[1];
@@ -94,5 +98,7 @@ class DataBase
 		unlink($configPath);
 	}
 
-	final public function __clone(): void {}
+	final public function __clone(): void
+	{
+	}
 }
