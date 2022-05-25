@@ -85,7 +85,7 @@ class DataBase
 				$dbNamePart = explode('=', $part);
 				$dbName = $dbNamePart[1];
 				if (Config::$ENVIRONMENT === Config::TEST_ENVIRONMENT) {
-					$dbName[1] .= '_test';
+					$dbName .= '_test';
 				}
 			}
 		}
