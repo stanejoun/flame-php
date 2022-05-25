@@ -84,9 +84,6 @@ class DataBase
 			if (str_contains($part, 'dbname')) {
 				$dbNamePart = explode('=', $part);
 				$dbName = $dbNamePart[1];
-				if (Config::$ENVIRONMENT === Config::TEST_ENVIRONMENT) {
-					$dbName .= '_test';
-				}
 			}
 		}
 		file_put_contents($configPath, "[client]\n", FILE_APPEND);
