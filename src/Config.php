@@ -21,7 +21,7 @@ class Config
 				$testConfigFilename = ROOT . 'config/config.test.json';
 				if (file_exists($testConfigFilename)) {
 					$testContent = file_get_contents($testConfigFilename);
-					$testConfig = json_decode($testContent, false, 512, \JSON_THROW_ON_ERROR);
+					$testConfig = json_decode($testContent, true, 512, \JSON_THROW_ON_ERROR);
 					$config = array_merge($config, $testConfig);
 				}
 			}
