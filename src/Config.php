@@ -25,7 +25,7 @@ class Config
 					$config = array_merge($config, $testConfig);
 				}
 			}
-			self::$CONFIG = (object)$config;
+			self::$CONFIG = json_decode(json_encode($config), false, 512, \JSON_THROW_ON_ERROR);
 		}
 		if (empty($key)) {
 			return self::$CONFIG;
@@ -51,5 +51,7 @@ class Config
 		self::$ENVIRONMENT = Config::DEV_ENVIRONMENT;
 	}
 
-	final public function __clone(): void {}
+	final public function __clone(): void
+	{
+	}
 }
