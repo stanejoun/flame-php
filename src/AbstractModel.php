@@ -83,7 +83,7 @@ abstract class AbstractModel extends AbstractCommon
 					if ($index === 0) {
 						$object = $currentObject;
 					} else {
-						$propertyName = $currentObject->modelDescription()->getTable();
+						$propertyName = Helper::getCamelCaseName($currentObject->modelDescription()->getTable());
 						if (in_array("{$propertyName}Id", $object->modelDescription()->getProperties())) {
 							if (!property_exists($object, $propertyName)) {
 								$object->{$propertyName} = null;
