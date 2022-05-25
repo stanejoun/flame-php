@@ -442,7 +442,7 @@ abstract class AbstractModel extends AbstractCommon
 		$bindValues = [];
 		$properties = $this->modelDescription()->getProperties();
 		foreach ($properties as $property) {
-			if (!ModelDescription::$DISABLE_AUTO_DATETIME && $this->modelDescription()->isAutoDatetime() && in_array($property, ['created_at', 'updated_at', 'deleted_at'])) {
+			if (!ModelDescription::$DISABLE_AUTO_DATETIME && $this->modelDescription()->isAutoDatetime() && in_array($property, ['createdAt', 'updatedAt', 'deletedAt'])) {
 				if (!$this->id && $property === 'createdAt' && !ModelDescription::$DISABLE_CREATED_AT) {
 					$propertyValue = Helper::getPropertyValue($this, $property);
 					$datetime = Helper::toString($propertyValue);
