@@ -67,7 +67,7 @@ class DataBase
 
 	public static function executeSqlFile(string $filename): void
 	{
-		$configPath = __DIR__ . '../db.cnf';
+		$configPath = __DIR__ . '/../db.cnf';
 		if (file_exists($configPath)) {
 			unlink($configPath);
 		}
