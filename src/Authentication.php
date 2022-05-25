@@ -99,7 +99,7 @@ class Authentication
 	{
 		$userClass = self::getUserClass();
 		/** @var User $user */
-		$user = call_user_func([$userClass, 'FindOne'], (new Query())
+		$user = call_user_func([$userClass, 'findOne'], (new Query())
 			->where((string)User::$USER_IDENTIFIER_PROPERTY . ' = :' . (string)User::$USER_IDENTIFIER_PROPERTY)
 			->args([(string)User::$USER_IDENTIFIER_PROPERTY => $userIdentifierValue])
 		);

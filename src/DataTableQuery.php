@@ -8,19 +8,31 @@ class DataTableQuery
 	public int $limit = 10;
 	public string $search = '';
 	public array $sort = [];
-	/** @var DataTableFilter[] */
-	public array $filters = [];
-	public array $filterOn = [];
 	public Query $query;
+	public mixed $select = '*';
+	public string $from = '';
+	#[ArrayOf('String')]
+	public array $join = [];
 	public array $searchClauses = [];
+	#[ArrayOf('DataTableFilter')]
+	public array $filters = [];
+	#[ArrayOf('String')]
+	public array $filtersOn = [];
+	#[ArrayOf('String')]
 	public array $sortOn = [];
+	public array $where = [];
 
-	public function __construct(array $searchClauses, array $sortOn, array $filterOn = [])
+
+	public function __construct(mixed $select, string $from, array $join = [], array $searchClauses = [], array $filtersOn = [], array $where = [], array $sortOn = [])
 	{
 		$this->query = new Query();
+		$this->select = $select;
+		$this->from = $from;
+		$this->join = $join;
 		$this->searchClauses = $searchClauses;
+		$this->filtersOn = $filtersOn;
 		$this->sortOn = $sortOn;
-		$this->filterOn = $filterOn;
+		$this->where = $where;
 		$this->fetchRequestData();
 		$this->build();
 	}
@@ -78,78 +90,85 @@ class DataTableQuery
 			foreach ($this->filters as $filterData) {
 				/** @var DataTableFilter $filter */
 				$filter = helper::instantiate(DataTableFilter::class, $filterData);
-				$filterColumn = $filter->column;
-				if ($filter->type === DataTableFilter::DATE_TYPE) {
-					if ($filter->dateFrom) {
-						$filterClause[] = "$filterColumn >= :filter_date_from";
-						$args['filter_date_from'] = date('Y-m-d 00:00:00', strtotime($filter->dateFrom));
-					}
-					if ($filter->dateTo) {
-						$filterClause[] = "$filterColumn <= :filter_date_to";
-						$args['filter_date_to'] = date('Y-m-d 23:59:59', strtotime($filter->dateTo));
-					}
-				} else if ($filter->type === DataTableFilter::PERIOD_TYPE) {
-					switch ($filter->period) {
-						case 'today':
-							$filterClause[] = "$filterColumn >= :filter_date_from AND $filterColumn <= :filter_date_to";
-							$args['filter_date_from'] = date('Y-m-d 00:00:00', strtotime('now'));
-							$args['filter_date_to'] = date('Y-m-d 23:59:59', strtotime('now'));
-							break;
-						case 'yesterday':
-							$filterClause[] = "$filterColumn >= :filter_date_from AND $filterColumn <= :filter_date_to";
-							$args['filter_date_from'] = date('Y-m-d 00:00:00', strtotime('previous day'));
-							$args['filter_date_to'] = date('Y-m-d 23:59:59', strtotime('previous day'));
-							break;
-						case 'currentWeek':
-							$filterClause[] = "$filterColumn >= :filter_date_from AND $filterColumn<= :filter_date_to";
-							$args['filter_date_from'] = date('Y-m-d 00:00:00', strtotime('monday this week'));
-							$args['filter_date_to'] = date('Y-m-d 23:59:59', strtotime('sunday this week'));
-							break;
-						case 'lastWeek':
-							$filterClause[] = "$filterColumn >= :filter_date_from AND $filterColumn <= :filter_date_to";
-							$args['filter_date_from'] = date('Y-m-d 00:00:00', strtotime('monday previous week'));
-							$args['filter_date_to'] = date('Y-m-d 23:59:59', strtotime('sunday previous week'));
-							break;
-						case 'currentMonth':
-							$filterClause[] = "$filterColumn >= :filter_date_from AND $filterColumn <= :filter_date_to";
-							$args['filter_date_from'] = date('Y-m-d 00:00:00', strtotime('first day of this month'));
-							$args['filter_date_to'] = date('Y-m-d 23:59:59', strtotime('last day of this month'));
-							break;
-						case 'lastMonth':
-							$filterClause[] = "$filterColumn >= :filter_date_from AND $filterColumn <= :filter_date_to";
-							$args['filter_date_from'] = date('Y-m-d 00:00:00', strtotime('first day of previous month'));
-							$args['filter_date_to'] = date('Y-m-d 23:59:59', strtotime('last day of previous month'));
-							break;
-						case 'currentYear':
-							$filterClause[] = "year($filterColumn) = :filter_date";
-							$args['filter_date'] = date('Y', strtotime('this year'));
-							break;
-						case 'lastYear':
-							$filterClause[] = "year($filterColumn) = :filter_date";
-							$args['filter_date'] = date('Y', strtotime('previous year'));
-							break;
-						case '-24 hours':
-						case '-7 days':
-						case '-30 days':
-							$filterClause[] = "$filterColumn >= :filter_date_from AND $filterColumn <= :filter_date_to";
-							$args['filter_date_from'] = date('Y-m-d H:i:s', strtotime($filter->period));
-							$args['filter_date_to'] = date('Y-m-d H:i:s', strtotime('now'));
-							break;
-						case '-3 months':
-						case '-6 months':
-						case '-12 months':
-							$filterClause[] = "$filterColumn >= :filter_date_from AND $filterColumn <= :filter_date_to";
-							$args['filter_date_from'] = date('Y-m-d 00:00:00', strtotime("first day of {$filter->period}"));
-							$args['filter_date_to'] = date('Y-m-d 23:59:59', strtotime('now'));
-							break;
-					}
-				} else if ($filter->type === DataTableFilter::LIST_TYPE) {
-					if (is_array($filter->selectedValues) && !empty($filter->selectedValues)) {
-						$filterClause[] = "$filterColumn IN(:filter_{$filter->name})";
-						$args["filter_{$filter->name}"] = $filter->selectedValues;
-					} else if (!empty($filter->selectedValues)) {
-						$filterClause[] = "$filterColumn = :filter_{$filter->name}";
-						$args["filter_{$filter->name}"] = $filter->selectedValues;
+				if (in_array($filter->name, $this->filtersOn)) {
+					$filterColumn = $filter->column;
+					if ($filter->type === DataTableFilter::DATE_TYPE) {
+						if ($filter->dateFrom) {
+							$filterClause[] = "$filterColumn >= :filter_date_from";
+							$args['filter_date_from'] = date('Y-m-d 00:00:00', strtotime($filter->dateFrom));
+						}
+						if ($filter->dateTo) {
+							$filterClause[] = "$filterColumn <= :filter_date_to";
+							$args['filter_date_to'] = date('Y-m-d 23:59:59', strtotime($filter->dateTo));
+						}
+					} else if ($filter->type === DataTableFilter::PERIOD_TYPE) {
+						switch ($filter->period) {
+							case 'today':
+								$filterClause[] = "$filterColumn >= :filter_date_from AND $filterColumn <= :filter_date_to";
+								$args['filter_date_from'] = date('Y-m-d 00:00:00', strtotime('now'));
+								$args['filter_date_to'] = date('Y-m-d 23:59:59', strtotime('now'));
+								break;
+							case 'yesterday':
+								$filterClause[] = "$filterColumn >= :filter_date_from AND $filterColumn <= :filter_date_to";
+								$args['filter_date_from'] = date('Y-m-d 00:00:00', strtotime('previous day'));
+								$args['filter_date_to'] = date('Y-m-d 23:59:59', strtotime('previous day'));
+								break;
+							case 'currentWeek':
+								$filterClause[] = "$filterColumn >= :filter_date_from AND $filterColumn<= :filter_date_to";
+								$args['filter_date_from'] = date('Y-m-d 00:00:00', strtotime('monday this week'));
+								$args['filter_date_to'] = date('Y-m-d 23:59:59', strtotime('sunday this week'));
+								break;
+							case 'lastWeek':
+								$filterClause[] = "$filterColumn >= :filter_date_from AND $filterColumn <= :filter_date_to";
+								$args['filter_date_from'] = date('Y-m-d 00:00:00', strtotime('monday previous week'));
+								$args['filter_date_to'] = date('Y-m-d 23:59:59', strtotime('sunday previous week'));
+								break;
+							case 'currentMonth':
+								$filterClause[] = "$filterColumn >= :filter_date_from AND $filterColumn <= :filter_date_to";
+								$args['filter_date_from'] = date('Y-m-d 00:00:00', strtotime('first day of this month'));
+								$args['filter_date_to'] = date('Y-m-d 23:59:59', strtotime('last day of this month'));
+								break;
+							case 'lastMonth':
+								$filterClause[] = "$filterColumn >= :filter_date_from AND $filterColumn <= :filter_date_to";
+								$args['filter_date_from'] = date('Y-m-d 00:00:00', strtotime('first day of previous month'));
+								$args['filter_date_to'] = date('Y-m-d 23:59:59', strtotime('last day of previous month'));
+								break;
+							case 'currentYear':
+								$filterClause[] = "year($filterColumn) = :filter_date";
+								$args['filter_date'] = date('Y', strtotime('this year'));
+								break;
+							case 'lastYear':
+								$filterClause[] = "year($filterColumn) = :filter_date";
+								$args['filter_date'] = date('Y', strtotime('previous year'));
+								break;
+							case '-24 hours':
+							case '-7 days':
+							case '-30 days':
+								$filterClause[] = "$filterColumn >= :filter_date_from AND $filterColumn <= :filter_date_to";
+								$args['filter_date_from'] = date('Y-m-d H:i:s', strtotime($filter->period));
+								$args['filter_date_to'] = date('Y-m-d H:i:s', strtotime('now'));
+								break;
+							case '-3 months':
+							case '-6 months':
+							case '-12 months':
+								$filterClause[] = "$filterColumn >= :filter_date_from AND $filterColumn <= :filter_date_to";
+								$args['filter_date_from'] = date('Y-m-d 00:00:00', strtotime("first day of {$filter->period}"));
+								$args['filter_date_to'] = date('Y-m-d 23:59:59', strtotime('now'));
+								break;
+						}
+					} else if ($filter->type === DataTableFilter::LIST_TYPE) {
+						if (is_array($filter->selectedValues) && !empty($filter->selectedValues)) {
+							$filterClause[] = "$filterColumn IN(:filter_{$filter->name})";
+							$args["filter_{$filter->name}"] = $filter->selectedValues;
+						} else if ($filter->isSerializedData) {
+							$filterClause[] = "{$filter->name} LIKE :filter_{$filter->name}";
+							foreach ($filter->selectedValues as $selectedValue) {
+								$args["filter_{$filter->name}"] = "%i:$selectedValue;%";
+							}
+						} else if (!empty($filter->selectedValues)) {
+							$filterClause[] = "$filterColumn = :filter_{$filter->name}";
+							$args["filter_{$filter->name}"] = $filter->selectedValues;
+						}
 					}
 				}
 			}
@@ -169,5 +188,16 @@ class DataTableQuery
 				$this->query->args($args);
 			}
 		}
+	}
+
+	public function search(): SearchResult
+	{
+		if (is_array($this->select)) {
+			$this->query->select(implode(', ', $this->select));
+		} else {
+			$this->query->select($this->select);
+		}
+		$this->query->join(implode(' ', $this->join));
+		return call_user_func([$this->from, 'search'], $this->query);
 	}
 }
