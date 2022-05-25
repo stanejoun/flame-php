@@ -110,7 +110,7 @@ class Request
 	public static function isRemoteRequest(): bool
 	{
 		$requestUri = Router::getCurrentRequestUri();
-		return (str_contains($requestUri, '/api/') || Request::isXmlHttpRequest());
+		return (str_contains($requestUri, '/api/') || self::isXmlHttpRequest());
 	}
 
 	public static function isXmlHttpRequest(): bool

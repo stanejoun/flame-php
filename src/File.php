@@ -365,7 +365,6 @@ class File extends AbstractModel
 		if (!preg_match('([a-zA-Z0-9./-]+)', $this->filename)) {
 			throw new \InvalidArgumentException('Invalid filename!');
 		}
-		$path = $this->root() . $this->filename;
 		if (!in_array($this->mimeType, self::AVAILABLE_MIME_TYPES)) {
 			throw new ForbiddenException('You are not allowed to download this file format.');
 		}
@@ -374,8 +373,9 @@ class File extends AbstractModel
 			$this->expiredAt = time() - 1800;
 			$this->save();
 		}
-		$this->downloadHeader($this->filename);
-		readfile($this->filename);
+		$path = $this->root() . $this->filename;
+		$this->downloadHeader($path);
+		readfile($path);
 		exit;
 	}
 
@@ -409,8 +409,9 @@ class File extends AbstractModel
 		if (!preg_match('(image|sound|video)', $media) || !preg_match('([a-zA-Z0-9./-]+)', $this->filename)) {
 			throw new \InvalidArgumentException('Check parameters for get the requested file!');
 		}
+		$path = $this->root() . $this->filename;
 		$this->contentTypeHeader($this->mimeType);
-		readfile($this->filename);
+		readfile($path);
 		exit;
 	}
 

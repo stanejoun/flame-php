@@ -4,7 +4,7 @@ namespace Stanejoun\LightPHP;
 
 #[ModelDescription([
 	'table' => 'file',
-	'ignored_properties' => ['_adapter']
+	'unmappedProperties' => ['_adapter']
 ])]
 class ImageFile extends File
 {

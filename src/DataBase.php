@@ -34,9 +34,7 @@ class DataBase
 			$stmt = $dbh->prepare($sql);
 			if (!$stmt->execute($bindValues)) {
 				$errorMessage = 'PDO statement execution error!';
-				if (Config::$ENVIRONMENT !== 'PROD') {
-					Logger::debug($errorMessage, $dbh->errorInfo());
-				}
+				Logger::debug($errorMessage, $dbh->errorInfo());
 				throw new \RuntimeException($errorMessage);
 			}
 		} catch (\Exception $e) {

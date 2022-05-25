@@ -15,11 +15,11 @@ class Router
 		Lang::setLocale();
 		/** @var string[] $corsRestrictedOrigins */
 		$corsRestrictedOrigins = Config::get('corsRestrictedOrigins');
-		$http_origin = Request::getHeader('HTTP_ORIGIN');
-		if (!empty($corsRestrictedOrigins) && !in_array($http_origin, $corsRestrictedOrigins)) {
+		$httpOrigin = Request::getHeader('HTTP_ORIGIN');
+		if (!empty($corsRestrictedOrigins) && !in_array($httpOrigin, $corsRestrictedOrigins)) {
 			throw new UnauthorizedException(Translator::translate('Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource.'));
 		}
-		header("Access-Control-Allow-Origin: $http_origin");
+		header("Access-Control-Allow-Origin: $httpOrigin");
 		header('Access-Control-Allow-Credentials: true');
 		header('Access-Control-Max-Age: 86400');
 		if (Request::getHeader('REQUEST_METHOD') === 'OPTIONS') {
@@ -55,8 +55,8 @@ class Router
 			return ($serverPort == '443') ? 'https' : 'http';
 		}
 		$https = Request::getHeader('HTTPS');
-		$http_x_forwarded_proto = Request::getHeader('HTTP_X_FORWARDED_PROTO');
-		return (isset($https) && ((!empty($https) || $https !== 'on') || (!empty($http_x_forwarded_proto) && $http_x_forwarded_proto === 'https'))) ? 'https' : 'http';
+		$httpXForwardedProto = Request::getHeader('HTTP_X_FORWARDED_PROTO');
+		return (isset($https) && ((!empty($https) || $https !== 'on') || (!empty($httpXForwardedProto) && $httpXForwardedProto === 'https'))) ? 'https' : 'http';
 	}
 
 	private static function getRoute(): Route

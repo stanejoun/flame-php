@@ -56,11 +56,11 @@ class Authentication
 					throw new UnauthorizedException(Translator::translate('Invalid fingerprint!'));
 				}
 				if (!empty($decoded->data->id)) {
-					if (!$roles = json_decode($decoded->data->roles)) {
-						throw new InternalServerErrorException();
-					}
 					if (self::isTokenRevoked($decoded->data->id)) {
 						throw new UnauthorizedException(Translator::translate('Authorization revoked!'));
+					}
+					if (!$roles = json_decode($decoded->data->roles)) {
+						throw new InternalServerErrorException();
 					}
 					return [
 						'id' => $decoded->data->id,

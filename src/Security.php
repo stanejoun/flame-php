@@ -153,7 +153,7 @@ class Security
 		return base64_encode(password_hash($password, PASSWORD_DEFAULT));
 	}
 
-	public function EncryptFile($filename): void
+	public function encryptFile($filename): void
 	{
 		$handle = fopen($filename, 'r+b');
 		$content = fread($handle, filesize($filename));
@@ -177,7 +177,7 @@ class Security
 		return base64_encode(sodium_crypto_secretbox($message, $nonce, $encryptKey));
 	}
 
-	public function DecryptFile($filename): void
+	public function decryptFile($filename): void
 	{
 		$handle = fopen($filename, 'r+b');
 		$cipherContent = fread($handle, filesize($filename));

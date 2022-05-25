@@ -14,6 +14,7 @@ class ModelDescription
 	public static bool $DISABLE_UPDATED_AT = false;
 	public static bool $DISABLE_DELETED_AT = false;
 	public static bool $DISABLE_AUTO_ENCRYPTION = false;
+	public static bool $DISABLE_AUTO_TRANSLATION = false;
 
 	private string $table = '';
 	private bool $autoIncrement = true;
@@ -25,12 +26,20 @@ class ModelDescription
 	private array $properties = [];
 	#[ArrayOf('string')]
 	private array $encryptedFields = [];
+	#[ArrayOf('string')]
+	private array $translatedProperties = [];
+	private string $translationTable = '';
 
 	public function __construct(?array $definition = null)
 	{
 		if ($definition) {
 			Helper::hydrate($this, $definition);
 		}
+	}
+
+	public function hasEncryptedFields(): bool
+	{
+		return !empty($this->encryptedFields);
 	}
 
 	public function getTable(): string
@@ -110,8 +119,25 @@ class ModelDescription
 		return $this;
 	}
 
-	public function hasEncryptedFields(): bool
+	public function getTranslatedProperties(): array
 	{
-		return !empty($this->encryptedFields);
+		return $this->translatedProperties;
+	}
+
+	public function setTranslatedProperties(array $translatedProperties): ModelDescription
+	{
+		$this->translatedProperties = $translatedProperties;
+		return $this;
+	}
+
+	public function getTranslationTable(): string
+	{
+		return $this->translationTable;
+	}
+
+	public function setTranslationTable(string $translationTable): ModelDescription
+	{
+		$this->translationTable = $translationTable;
+		return $this;
 	}
 }

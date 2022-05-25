@@ -116,7 +116,7 @@ class DataValidator
 					} else if (!$propertyDefinition->hasSubProperties()) {
 						try {
 							if (!empty($propertyDefinition->getType()) && !empty($value)) {
-								$Method = 'Valid' . ucfirst(trim($propertyDefinition->getType()));
+								$Method = 'valid' . ucfirst(trim($propertyDefinition->getType()));
 								if (!method_exists('\Stanejoun\LightPHP\ValidatorHelper', $Method)) {
 									throw new BusinessException(Translator::translate('Unable to validate this value!'));
 								}
