@@ -1,11 +1,11 @@
 <?php
 
-namespace Stanejoun\LightPHP;
+namespace Stanejoun\FlamePHP;
 
-use Stanejoun\LightPHP\Exceptions\BadRequestException;
-use Stanejoun\LightPHP\Exceptions\InternalServerErrorException;
-use Stanejoun\LightPHP\Exceptions\NotFoundException;
-use Stanejoun\LightPHP\Exceptions\UnauthorizedException;
+use Stanejoun\FlamePHP\Exceptions\BadRequestException;
+use Stanejoun\FlamePHP\Exceptions\InternalServerErrorException;
+use Stanejoun\FlamePHP\Exceptions\NotFoundException;
+use Stanejoun\FlamePHP\Exceptions\UnauthorizedException;
 
 class Router
 {

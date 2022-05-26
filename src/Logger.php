@@ -1,8 +1,8 @@
 <?php
 
-namespace Stanejoun\LightPHP;
+namespace Stanejoun\FlamePHP;
 
-use Stanejoun\LightPHP\Exceptions\InternalServerErrorException;
+use Stanejoun\FlamePHP\Exceptions\InternalServerErrorException;
 
 class Logger implements LoggerInterface
 {

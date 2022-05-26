@@ -1,6 +1,6 @@
 <?php
 
-namespace Stanejoun\LightPHP;
+namespace Stanejoun\FlamePHP;
 
 class Response
 {

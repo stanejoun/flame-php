@@ -1,13 +1,13 @@
 <?php
 
-namespace Stanejoun\LightPHP;
+namespace Stanejoun\FlamePHP;
 
 use Attribute;
 
 #[Attribute(Attribute::TARGET_CLASS)]
 class ModelDescription
 {
-	#[ArrayOf('\Stanejoun\LightPHP\ModelDescription')]
+	#[ArrayOf('\Stanejoun\FlamePHP\ModelDescription')]
 	public static array $DESCRIPTIONS = [];
 	public static bool $DISABLE_AUTO_DATETIME = false;
 	public static bool $DISABLE_CREATED_AT = false;

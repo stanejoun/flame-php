@@ -1,10 +1,10 @@
 <?php
 
-namespace Stanejoun\LightPHP;
+namespace Stanejoun\FlamePHP;
 
 class Routes
 {
-	#[ArrayOf('\Stanejoun\LightPHP\Route')]
+	#[ArrayOf('\Stanejoun\FlamePHP\Route')]
 	private static array $ROUTES = [];
 
 	/**

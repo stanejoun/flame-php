@@ -1,13 +1,13 @@
 <?php
 
-namespace Stanejoun\LightPHP;
+namespace Stanejoun\FlamePHP;
 
 use Exception;
 use Firebase\JWT\JWT;
-use Stanejoun\LightPHP\Exceptions\InternalServerErrorException;
-use Stanejoun\LightPHP\Exceptions\MaxLoginAttemptsException;
-use Stanejoun\LightPHP\Exceptions\UnauthorizedException;
-use Stanejoun\LightPHP\Exceptions\UntrustedUserException;
+use Stanejoun\FlamePHP\Exceptions\InternalServerErrorException;
+use Stanejoun\FlamePHP\Exceptions\MaxLoginAttemptsException;
+use Stanejoun\FlamePHP\Exceptions\UnauthorizedException;
+use Stanejoun\FlamePHP\Exceptions\UntrustedUserException;
 
 class Authentication
 {
@@ -91,7 +91,7 @@ class Authentication
 		if (class_exists('\App\Model\User')) {
 			return '\App\Model\User';
 		} else {
-			return '\Stanejoun\LightPHP\User';
+			return '\Stanejoun\FlamePHP\User';
 		}
 	}
 

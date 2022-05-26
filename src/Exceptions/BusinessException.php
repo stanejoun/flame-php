@@ -1,8 +1,8 @@
 <?php
 
-namespace Stanejoun\LightPHP\Exceptions;
+namespace Stanejoun\FlamePHP\Exceptions;
 
-use Stanejoun\LightPHP\ResponseErrorDTO;
+use Stanejoun\FlamePHP\ResponseErrorDTO;
 
 class BusinessException extends \Exception
 {

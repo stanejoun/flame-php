@@ -1,6 +1,6 @@
 <?php
 
-namespace Stanejoun\LightPHP;
+namespace Stanejoun\FlamePHP;
 
 #[ModelDescription(['table' => 'refresh_token'])]
 class RefreshToken extends AbstractModel

@@ -1,6 +1,6 @@
 {
 	"name": "stanejoun/light-php",
-	"description": "LightPHP It's a simple, light and easy to use PHP 8 MVC micro framework! Into the light, become the power",
+	"description": "FlamePHP It's a simple, light and easy to use PHP 8 MVC micro framework! Into the light, become the power",
 	"type": "library",
 	"require": {
 		"php": ">=8",

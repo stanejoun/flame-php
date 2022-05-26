@@ -1,12 +1,12 @@
 <?php
 
-namespace Stanejoun\LightPHP;
+namespace Stanejoun\FlamePHP;
 
-use Stanejoun\LightPHP\Exceptions\BusinessException;
+use Stanejoun\FlamePHP\Exceptions\BusinessException;
 
 class DataValidator
 {
-	#[ArrayOf('\Stanejoun\LightPHP\PropertyDefinition')]
+	#[ArrayOf('\Stanejoun\FlamePHP\PropertyDefinition')]
 	private array $propertiesDefinitions = [];
 	#[ArrayOf('string')]
 	private array $errors = [];
@@ -117,7 +117,7 @@ class DataValidator
 						try {
 							if (!empty($propertyDefinition->getType()) && !empty($value)) {
 								$Method = 'valid' . ucfirst(trim($propertyDefinition->getType()));
-								if (!method_exists('\Stanejoun\LightPHP\ValidatorHelper', $Method)) {
+								if (!method_exists('\Stanejoun\FlamePHP\ValidatorHelper', $Method)) {
 									throw new BusinessException(Translator::translate('Unable to validate this value!'));
 								}
 								$message = !empty($propertyDefinition->getTypeErrorMessage()) ? $propertyDefinition->getRequiredErrorMessage() : null;

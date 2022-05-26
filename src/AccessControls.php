@@ -1,12 +1,12 @@
 <?php
 
-namespace Stanejoun\LightPHP;
+namespace Stanejoun\FlamePHP;
 
-use Stanejoun\LightPHP\Exceptions\ForbiddenException;
+use Stanejoun\FlamePHP\Exceptions\ForbiddenException;
 
 class AccessControls
 {
-	#[ArrayOf('\Stanejoun\LightPHP\Role')]
+	#[ArrayOf('\Stanejoun\FlamePHP\Role')]
 	private static array $ROLES;
 
 	final public static function check(Route $route): bool

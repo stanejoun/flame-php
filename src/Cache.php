@@ -1,10 +1,10 @@
 <?php
 
-namespace Stanejoun\LightPHP;
+namespace Stanejoun\FlamePHP;
 
 class Cache
 {
-	#[ArrayOf('\Stanejoun\LightPHP\CacheInterface')]
+	#[ArrayOf('\Stanejoun\FlamePHP\CacheInterface')]
 	private static array $INSTANCE = [];
 
 	final public static function getInstance($path = '', $timeout = null): CacheInterface

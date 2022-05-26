@@ -1,8 +1,8 @@
 <?php
 
-namespace Stanejoun\LightPHP;
+namespace Stanejoun\FlamePHP;
 
-use Stanejoun\LightPHP\Exceptions\ForbiddenException;
+use Stanejoun\FlamePHP\Exceptions\ForbiddenException;
 
 class Controller extends AbstractCommon
 {

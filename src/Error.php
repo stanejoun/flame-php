@@ -1,8 +1,8 @@
 <?php
 
-namespace Stanejoun\LightPHP;
+namespace Stanejoun\FlamePHP;
 
-use Stanejoun\LightPHP\Exceptions\BusinessException;
+use Stanejoun\FlamePHP\Exceptions\BusinessException;
 
 class Error
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Stanejoun\LightPHP\Exceptions;
+namespace Stanejoun\FlamePHP\Exceptions;
 
-use Stanejoun\LightPHP\Request;
+use Stanejoun\FlamePHP\Request;
 
 class InternalServerErrorException extends \Exception
 {

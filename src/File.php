@@ -1,9 +1,9 @@
 <?php
 
-namespace Stanejoun\LightPHP;
+namespace Stanejoun\FlamePHP;
 
-use Stanejoun\LightPHP\Exceptions\BusinessException;
-use Stanejoun\LightPHP\Exceptions\ForbiddenException;
+use Stanejoun\FlamePHP\Exceptions\BusinessException;
+use Stanejoun\FlamePHP\Exceptions\ForbiddenException;
 
 #[ModelDescription([
 	'table' => 'file'
