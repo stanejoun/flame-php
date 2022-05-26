@@ -488,15 +488,12 @@ abstract class AbstractModel extends AbstractCommon
 			$bindValues[':id'] = $this->id;
 			$updateSQL = 'UPDATE ' . $this->modelDescription()->getTable() . ' SET ' . implode(', ', $updateBindParams) . ' WHERE id = :id ;';
 			DataBase::executeQuery($updateSQL, $bindValues);
+			$this->afterUpdate();
 		} else {
 			$insertSQL = 'INSERT INTO ' . $this->modelDescription()->getTable() . ' (' . implode(', ', $fields) . ') VALUES(' . implode(', ', $bindParams) . ');';
 			DataBase::executeQuery($insertSQL, $bindValues);
 			$this->id = DataBase::getInstance()->lastInsertId('id');
-		}
-		if (!$this->id) {
 			$this->afterInsert();
-		} else {
-			$this->afterUpdate();
 		}
 		$this->afterSave();
 	}
