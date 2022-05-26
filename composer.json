@@ -21,11 +21,15 @@
 	"license": "MIT",
 	"keywords": [
 		"PHP Framework",
-		"MVC"
+		"MVC",
+		"Powerful",
+		"Flame",
+		"Strong",
+		"Forge"
 	],
 	"autoload": {
 		"psr-4": {
-			"Stanejoun\\LightPHP\\": "src"
+			"Stanejoun\\FlamePHP\\": "src"
 		}
 	},
 	"authors": [

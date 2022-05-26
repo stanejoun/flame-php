@@ -1,12 +1,11 @@
-# LightPHP
-The power of lightPHP is here.
+#FlamePHP
 
-## Description
+The power of [FlamePHP](https://github.com/stanejoun/flame-php-app) is here.
 
-[LightPHP](https://github.com/stanejoun/opframework-app) is a simple light and easy to use PHP 8 MVC micro framework!
+[FlamePHP](https://github.com/stanejoun/flame-php-app) is a simple, lightweight and easy to use PHP 8 MVC framework!
 
-But... you still have some work to do! You must discover by yourself how to use the light.
+But... you still have some work to do! You have to discover by yourself how to use the flame and forge your code.
 
-Don't forget: ***Into the light, become the power. Get the truth and share your highness. In the true light, code will become clearly and powerfully.***
+Remember: ***Into the flame, become the power. Discover the truth and share your wisdom. In the pure and fiery flame, the code will become clear and powerful, unwavering. ***
 
 Have fun and take on any challenge with LightPHP!
