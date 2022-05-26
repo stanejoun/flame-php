@@ -503,12 +503,12 @@ abstract class AbstractModel extends AbstractCommon
 		// You must override this method to use it.
 	}
 
-	protected function beforeSave(): void
+	protected function beforeUpdate(): void
 	{
 		// You must override this method to use it.
 	}
 
-	protected function afterInsert(): void
+	protected function beforeSave(): void
 	{
 		// You must override this method to use it.
 	}
@@ -518,11 +518,15 @@ abstract class AbstractModel extends AbstractCommon
 		// You must override this method to use it.
 	}
 
-	protected function afterSave(): void
+	protected function afterInsert(): void
 	{
 		// You must override this method to use it.
 	}
 
+	protected function afterSave(): void
+	{
+		// You must override this method to use it.
+	}
 
 	public function delete(): void
 	{
