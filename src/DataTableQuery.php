@@ -90,7 +90,7 @@ class DataTableQuery
 			foreach ($this->filters as $filterData) {
 				/** @var DataTableFilter $filter */
 				$filter = helper::instantiate(DataTableFilter::class, $filterData);
-				if (in_array($filter->name, $this->filtersOn)) {
+				if (in_array($filter->column, $this->filtersOn)) {
 					$filterColumn = $filter->column;
 					if ($filter->type === DataTableFilter::DATE_TYPE) {
 						if ($filter->dateFrom) {
@@ -156,18 +156,26 @@ class DataTableQuery
 								$args['filter_date_to'] = date('Y-m-d 23:59:59', strtotime('now'));
 								break;
 						}
-					} else if ($filter->type === DataTableFilter::LIST_TYPE) {
+					} else if ($filter->type === DataTableFilter::LIST_TYPE || $filter->type === DataTableFilter::BUTTON_TYPE) {
 						if (is_array($filter->selectedValues) && !empty($filter->selectedValues)) {
-							$filterClause[] = "$filterColumn IN(:filter_{$filter->name})";
-							$args["filter_{$filter->name}"] = $filter->selectedValues;
+							$filterClause[] = "$filterColumn IN(:filter_{$filter->column})";
+							if ($filter->isEncryptedField) {
+								foreach ($filter->selectedValues as $index => $selectedValue) {
+									$filter->selectedValues[$index] = Security::encrypt($selectedValue);
+								}
+							}
+							$args["filter_{$filter->column}"] = $filter->selectedValues;
 						} else if ($filter->isSerializedData) {
-							$filterClause[] = "{$filter->name} LIKE :filter_{$filter->name}";
+							$filterClause[] = "{$filter->column} LIKE :filter_{$filter->column}";
 							foreach ($filter->selectedValues as $selectedValue) {
-								$args["filter_{$filter->name}"] = "%i:$selectedValue;%";
+								$args["filter_{$filter->column}"] = "%i:$selectedValue;%";
 							}
 						} else if (!empty($filter->selectedValues)) {
-							$filterClause[] = "$filterColumn = :filter_{$filter->name}";
-							$args["filter_{$filter->name}"] = $filter->selectedValues;
+							$filterClause[] = "$filterColumn = :filter_{$filter->column}";
+							if ($filter->isEncryptedField) {
+								$filter->selectedValues = Security::encrypt($filter->selectedValues);
+							}
+							$args["filter_{$filter->column}"] = $filter->selectedValues;
 						}
 					}
 				}

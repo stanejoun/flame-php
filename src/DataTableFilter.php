@@ -9,7 +9,6 @@ class DataTableFilter
 	const DATE_TYPE = 'date';
 	const PERIOD_TYPE = 'period';
 
-	public string $name = '';
 	public string $column = '';
 	public bool $isEncryptedField = false;
 	public mixed $selectedValues = null;
