@@ -1,4 +1,4 @@
-#FlamePHP
+# FlamePHP
 
 The power of [FlamePHP](https://github.com/stanejoun/flame-php-app) is here.
 
