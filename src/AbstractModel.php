@@ -472,7 +472,7 @@ abstract class AbstractModel extends AbstractCommon
 				$bindParams[] = ":{$property}";
 				$propertyValue = Helper::getPropertyValue($this, $property);
 				if (!is_null($propertyValue) && !ModelDescription::$DISABLE_AUTO_ENCRYPTION && in_array($property, $this->modelDescription()->getEncryptedFields())) {
-					$propertyValue = Security::encrypt($propertyValue);
+					$propertyValue = Security::encrypt(Helper::toString($propertyValue));
 				}
 				$bindValues[":{$property}"] = $propertyValue === null ? null : Helper::toString($propertyValue);
 			}
