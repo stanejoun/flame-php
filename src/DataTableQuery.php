@@ -35,6 +35,7 @@ class DataTableQuery
 		$this->where = $where;
 		$this->fetchRequestData();
 		$this->build();
+		$this->buildFiltersClauses();
 	}
 
 	public function fetchRequestData()
@@ -74,8 +75,6 @@ class DataTableQuery
 				$this->query->orderBy($orderBy);
 			}
 		}
-
-		$this->buildFiltersClauses();
 
 		return $this;
 	}
