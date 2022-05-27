@@ -89,6 +89,7 @@ class DataTableQuery
 				$filter = helper::instantiate(DataTableFilter::class, $filterData);
 				if (in_array($filter->column, $this->filtersOn)) {
 					$filterColumn = $filter->column;
+					$placeholder = str_replace('.', '_', $filterColumn);
 					if ($filter->type === DataTableFilter::DATE_TYPE) {
 						if ($filter->dateFrom) {
 							$filterClause[] = "$filterColumn >= :filter_date_from";
@@ -155,7 +156,7 @@ class DataTableQuery
 						}
 					} else if ($filter->type === DataTableFilter::LIST_TYPE || $filter->type === DataTableFilter::BUTTON_TYPE) {
 						if (is_array($filter->selectedValues) && !empty($filter->selectedValues)) {
-							$filterClause[] = "$filterColumn IN(:filter_{$filter->column})";
+							$filterClause[] = "$filterColumn IN(:filter_{$placeholder})";
 							if ($filter->isEncryptedField) {
 								foreach ($filter->selectedValues as $index => $selectedValue) {
 									$filter->selectedValues[$index] = Security::encrypt($selectedValue);
@@ -163,12 +164,12 @@ class DataTableQuery
 							}
 							$args["filter_{$filter->column}"] = $filter->selectedValues;
 						} else if ($filter->isSerializedData) {
-							$filterClause[] = "{$filter->column} LIKE :filter_{$filter->column}";
+							$filterClause[] = "{$filter->column} LIKE :filter_{$placeholder}";
 							foreach ($filter->selectedValues as $selectedValue) {
 								$args["filter_{$filter->column}"] = "%i:$selectedValue;%";
 							}
 						} else if (!empty($filter->selectedValues)) {
-							$filterClause[] = "$filterColumn = :filter_{$filter->column}";
+							$filterClause[] = "$filterColumn = :filter_{$placeholder}";
 							if ($filter->isEncryptedField) {
 								$filter->selectedValues = Security::encrypt($filter->selectedValues);
 							}

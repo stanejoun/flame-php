@@ -15,6 +15,7 @@ class DataBase
 			$bindValues = [];
 			if (!empty($data)) {
 				foreach ($data as $key => $value) {
+					$key = str_replace('.', '_', $key);
 					if (is_array($value)) {
 						$placeholders = [];
 						foreach ($value as $index => $item) {
