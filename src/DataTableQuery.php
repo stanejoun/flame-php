@@ -65,10 +65,8 @@ class DataTableQuery
 		if (!empty($this->sort) && !empty($this->sortOn)) {
 			$orderByArray = [];
 			foreach ($this->sortOn as $column) {
-				$columnNames = explode('.', $column);
-				$columnName = $columnNames[1] ?? $columnNames[0];
-				if (isset($this->sort[$columnName]) && $this->sort[$columnName] !== 'none' && in_array(strtolower($this->sort[$columnName]), ['asc', 'desc'])) {
-					$orderByArray[] = "$column {$this->sort[$columnName]}";
+				if (isset($this->sort[$column]) && $this->sort[$column] !== 'none' && in_array(strtolower($this->sort[$column]), ['asc', 'desc'])) {
+					$orderByArray[] = "$column {$this->sort[$column]}";
 				}
 			}
 			if (!empty($orderByArray)) {
