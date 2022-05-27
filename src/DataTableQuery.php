@@ -206,6 +206,6 @@ class DataTableQuery
 			$this->query->select($this->select);
 		}
 		$this->query->join(implode(' ', $this->join));
-		return call_user_func([$this->from, 'search'], $this->query);
+		return call_user_func([$this->from, 'search'], $this->query, $this->page, $this->limit);
 	}
 }
