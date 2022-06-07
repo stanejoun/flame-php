@@ -154,7 +154,7 @@ class DataTableQuery
 								$args['filter_date_to'] = date('Y-m-d 23:59:59', strtotime('now'));
 								break;
 						}
-					} else if ($filter->type === DataTableFilter::LIST_TYPE || $filter->type === DataTableFilter::BUTTON_TYPE) {
+					} else if ($filter->type === DataTableFilter::LIST_TYPE || $filter->type === DataTableFilter::CHECKBOX_TYPE || $filter->type === DataTableFilter::RADIO_TYPE) {
 						if (is_array($filter->selectedValues) && !empty($filter->selectedValues)) {
 							$filterClause[] = "$filterColumn IN(:filter_{$placeholder})";
 							if ($filter->isEncryptedField) {

@@ -4,7 +4,8 @@ namespace Stanejoun\FlamePHP;
 
 class DataTableFilter
 {
-	const BUTTON_TYPE = 'button';
+	const RADIO_TYPE = 'radio';
+	const CHECKBOX_TYPE = 'checkbox';
 	const LIST_TYPE = 'list';
 	const DATE_TYPE = 'date';
 	const PERIOD_TYPE = 'period';
