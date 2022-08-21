@@ -49,6 +49,7 @@ class File extends AbstractModel
 	protected string $mimeType = '';
 	protected ?string $flag = null;
 	protected int $fileSize = 0; //bytes
+	protected ?string $base64 = null;
 	protected ?string $thumbnail = null;
 	protected bool $isPublic = false;
 	protected bool $isDownloadable = false;
@@ -68,11 +69,21 @@ class File extends AbstractModel
 		}
 	}
 
+	public static function getPath(string $storageLocation = '/', bool $public = false): string
+	{
+		return ($public) ? DOCUMENT_ROOT . $storageLocation : FILES . $storageLocation;
+	}
+
+	public static function generateFilename(string $storageLocation = '/', string $extension, bool $public = false)
+	{
+		return self::getPath() . md5(uniqid('filename-', true)) . '.' . $extension;
+	}
+
 	public static function upload(string $inputName, string $storageLocation = '/', bool $public = false): self|array
 	{
 		$storageLocation = (str_starts_with($storageLocation, '/')) ? substr($storageLocation, 1) : $storageLocation;
 		$storageLocation = (!empty($storageLocation) && $storageLocation !== '/' && !str_ends_with($storageLocation, '/')) ? "$storageLocation/" : $storageLocation;
-		$path = ($public) ? DOCUMENT_ROOT . $storageLocation : FILES . $storageLocation;
+		$path = self::getPath($storageLocation, $public);
 		if (!file_exists($path)) {
 			Helper::createFilesDirectory($path, $public);
 		}
@@ -428,6 +439,17 @@ class File extends AbstractModel
 	public function setFilename(string $filename): File
 	{
 		$this->filename = $filename;
+		return $this;
+	}
+
+	public function getBase64(): ?string
+	{
+		return $this->base64;
+	}
+
+	public function setBase64(?string $base64): File
+	{
+		$this->base64 = $base64;
 		return $this;
 	}
 }
