@@ -82,6 +82,24 @@ class File extends AbstractModel
 		return self::getPath($storageLocation, $public) . md5(uniqid('filename-', true));
 	}
 
+	public static function getMimeTypeFromBase64(string $base64): string
+	{
+		$fileMimeTypePos = strpos($base64, ';base64,');
+		$fileMimeType = substr($base64, 0, $fileMimeTypePos);
+		$fileMimeType = str_replace('data:', '', $fileMimeType);
+		foreach (self::AVAILABLE_MIME_TYPES as $extension => $currentMimeType) {
+			if ($currentMimeType === $fileMimeType) {
+				return $fileMimeType;
+			}
+		}
+		throw new BusinessException('The mime type is not supported by the application.');
+	}
+
+	public static function getExtensionFromBase64(string $base64): string
+	{
+		return self::getExtensionFromMimeType(self::getMimeTypeFromBase64($base64));
+	}
+
 	public static function getExtensionFromMimeType(string $mimeType): string
 	{
 		foreach (self::AVAILABLE_MIME_TYPES as $extension => $currentMimeType) {
