@@ -69,17 +69,21 @@ class File extends AbstractModel
 		}
 	}
 
-	public static function getPath(string $storageLocation = '/', bool $public = false): string
+	public static function generatePath(string $storageLocation = '/', bool $public = false): string
 	{
-		return ($public) ? DOCUMENT_ROOT . $storageLocation : FILES . $storageLocation;
+		$path = ($public) ? DOCUMENT_ROOT . $storageLocation : FILES . $storageLocation;
+		if (!file_exists($path)) {
+			Helper::createFilesDirectory($path, $public);
+		}
+		return $path;
 	}
 
 	public static function generateFilename(string $storageLocation = '/', string $extension = '', bool $public = false): string
 	{
 		if ($extension) {
-			return self::getPath($storageLocation, $public) . md5(uniqid('filename-', true)) . '.' . $extension;
+			return self::generatePath($storageLocation, $public) . md5(uniqid('filename-', true)) . '.' . $extension;
 		}
-		return self::getPath($storageLocation, $public) . md5(uniqid('filename-', true));
+		return self::generatePath($storageLocation, $public) . md5(uniqid('filename-', true));
 	}
 
 	public static function getMimeTypeFromBase64(string $base64): string
@@ -114,10 +118,7 @@ class File extends AbstractModel
 	{
 		$storageLocation = (str_starts_with($storageLocation, '/')) ? substr($storageLocation, 1) : $storageLocation;
 		$storageLocation = (!empty($storageLocation) && $storageLocation !== '/' && !str_ends_with($storageLocation, '/')) ? "$storageLocation/" : $storageLocation;
-		$path = self::getPath($storageLocation, $public);
-		if (!file_exists($path)) {
-			Helper::createFilesDirectory($path, $public);
-		}
+		$path = self::generatePath($storageLocation, $public);
 		if (Request::hasFiles($inputName)) {
 			if (is_array($_FILES[$inputName]['name'])) {
 				$files = [];
