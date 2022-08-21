@@ -44,11 +44,10 @@ class File extends AbstractModel
 	protected string $uid = '';
 	protected string $name = '';
 	protected string $path = '';
-	protected string $filename = '';
 	protected string $extension = '';
 	protected string $mimeType = '';
 	protected ?string $flag = null;
-	protected int $fileSize = 0; //bytes
+	protected int $size = 0; //bytes
 	protected ?string $base64 = null;
 	protected ?string $thumbnail = null;
 	protected bool $isPublic = false;
@@ -69,37 +68,6 @@ class File extends AbstractModel
 		}
 	}
 
-	public static function getFilePath(string $storageLocation = '/', bool $public = false): string
-	{
-		$path = ($public) ? DOCUMENT_ROOT . $storageLocation : FILES . $storageLocation;
-		if (!file_exists($path)) {
-			Helper::createFilesDirectory($path, $public);
-		}
-		return $path;
-	}
-
-	public static function generateFilename(?string $name = null): string
-	{
-		if ($name) {
-			return md5(uniqid('filename_', true) . $name);
-		} else {
-			return md5(uniqid('filename_', true));
-		}
-	}
-
-	public static function getMimeTypeFromBase64(string $base64): string
-	{
-		$fileMimeTypePos = strpos($base64, ';base64,');
-		$fileMimeType = substr($base64, 0, $fileMimeTypePos);
-		$fileMimeType = str_replace('data:', '', $fileMimeType);
-		foreach (self::AVAILABLE_MIME_TYPES as $extension => $currentMimeType) {
-			if ($currentMimeType === $fileMimeType) {
-				return $fileMimeType;
-			}
-		}
-		throw new BusinessException('The mime type is not supported by the application.');
-	}
-
 	public static function getExtensionFromBase64(string $base64): string
 	{
 		return self::getExtensionFromMimeType(self::getMimeTypeFromBase64($base64));
@@ -110,6 +78,19 @@ class File extends AbstractModel
 		foreach (self::AVAILABLE_MIME_TYPES as $extension => $currentMimeType) {
 			if ($currentMimeType === $mimeType) {
 				return $extension;
+			}
+		}
+		throw new BusinessException('The mime type is not supported by the application.');
+	}
+
+	public static function getMimeTypeFromBase64(string $base64): string
+	{
+		$fileMimeTypePos = strpos($base64, ';base64,');
+		$fileMimeType = substr($base64, 0, $fileMimeTypePos);
+		$fileMimeType = str_replace('data:', '', $fileMimeType);
+		foreach (self::AVAILABLE_MIME_TYPES as $extension => $currentMimeType) {
+			if ($currentMimeType === $fileMimeType) {
+				return $fileMimeType;
 			}
 		}
 		throw new BusinessException('The mime type is not supported by the application.');
@@ -135,6 +116,15 @@ class File extends AbstractModel
 		throw new BusinessException(Translator::translate('Unable to upload the file!'));
 	}
 
+	public static function getFilePath(string $storageLocation = '/', bool $public = false): string
+	{
+		$path = ($public) ? DOCUMENT_ROOT . $storageLocation : FILES . $storageLocation;
+		if (!file_exists($path)) {
+			Helper::createFilesDirectory($path, $public);
+		}
+		return $path;
+	}
+
 	private static function doUpload(string $inputName, string $path, bool $public = false, ?int $index = null)
 	{
 		$file = new self();
@@ -156,7 +146,7 @@ class File extends AbstractModel
 		if (!is_uploaded_file($tmpName)) {
 			throw new \Exception('Unable to upload the file: "' . $tmpName . '"!');
 		}
-		$saveFileName = self::generateFilename($name);
+		$saveFileName = md5(uniqid('filename_', true) . $name);
 		if (!move_uploaded_file($tmpName, $path . $saveFileName . '.' . $extension)) {
 			throw new BusinessException([$name => Translator::translate('The file upload has failed!')]);
 		}
@@ -166,10 +156,9 @@ class File extends AbstractModel
 		$name = basename($name, '.' . $extension);
 		$file->hydrate([
 			'name' => $name,
-			'uid' => md5(uniqid('file-uid-', true) . $saveFileName),
+			'uid' => $saveFileName,
 			'path' => $path,
-			'filename' => $saveFileName,
-			'fileSize' => $fileSize,
+			'size' => $fileSize,
 			'mimeType' => $mimeType,
 			'extension' => $extension,
 			'accessPermissions' => $accessPermissions,
@@ -191,9 +180,9 @@ class File extends AbstractModel
 		return $this;
 	}
 
-	public function beforeInsert(): void
+	public static function generateUid(): string
 	{
-		$this->uid = md5('file-uid-' . bin2hex(random_bytes(6)) . '-' . date('YmdHis'));
+		return md5(uniqid('file-uid-', true) . date('YmdHis'));
 	}
 
 	public function getUid(): string
@@ -215,17 +204,6 @@ class File extends AbstractModel
 	public function setName(string $name): File
 	{
 		$this->name = $name;
-		return $this;
-	}
-
-	public function getPath(): string
-	{
-		return $this->path;
-	}
-
-	public function setPath(string $path): File
-	{
-		$this->path = $path;
 		return $this;
 	}
 
@@ -262,14 +240,14 @@ class File extends AbstractModel
 		return $this;
 	}
 
-	public function getFileSize(): int
+	public function getSize(): int
 	{
-		return $this->fileSize;
+		return $this->size;
 	}
 
-	public function setFileSize(int $fileSize): File
+	public function setSize(int $size): File
 	{
-		$this->fileSize = $fileSize;
+		$this->size = $size;
 		return $this;
 	}
 
@@ -385,8 +363,8 @@ class File extends AbstractModel
 
 	public function delete(): void
 	{
-		if (!unlink($this->path . $this->filename . $this->extension)) {
-			throw new \Exception('Unable to delete this file: "' . $this->path . $this->filename . $this->extension . '"!');
+		if (!unlink($this->path . $this->uid . $this->extension)) {
+			throw new \Exception('Unable to delete this file: "' . $this->path . $this->uid . $this->extension . '"!');
 		}
 		parent::delete();
 	}
@@ -405,7 +383,7 @@ class File extends AbstractModel
 		if ($this->restrictToUserId && (!Authentication::$AUTHENTICATED_USER || Authentication::$AUTHENTICATED_USER->getId() !== $this->restrictToUserId)) {
 			throw new ForbiddenException('This file is for another user.');
 		}
-		if (!preg_match('([a-zA-Z0-9./-]+)', $this->filename . $this->extension)) {
+		if (!preg_match('([a-zA-Z0-9./-]+)', $this->uid . $this->extension)) {
 			throw new \InvalidArgumentException('Invalid filename!');
 		}
 		if (!in_array($this->mimeType, self::AVAILABLE_MIME_TYPES)) {
@@ -416,10 +394,21 @@ class File extends AbstractModel
 			$this->expiredAt = time() - 1800;
 			$this->save();
 		}
-		$path = $this->getPath() . $this->filename . $this->extension;
+		$path = $this->getPath() . $this->uid . $this->extension;
 		$this->downloadHeader($path);
 		readfile($path);
 		exit;
+	}
+
+	public function getPath(): string
+	{
+		return $this->path;
+	}
+
+	public function setPath(string $path): File
+	{
+		$this->path = $path;
+		return $this;
 	}
 
 	private function downloadHeader(string $filename): void
@@ -444,10 +433,10 @@ class File extends AbstractModel
 		if ($this->restrictToUserId && (!Authentication::$AUTHENTICATED_USER || Authentication::$AUTHENTICATED_USER->getId() !== $this->restrictToUserId)) {
 			throw new ForbiddenException('This file is for another user.');
 		}
-		if (!preg_match('(image|sound|video)', $media) || !preg_match('([a-zA-Z0-9./-]+)', $this->filename . $this->extension)) {
+		if (!preg_match('(image|sound|video)', $media) || !preg_match('([a-zA-Z0-9./-]+)', $this->uid . $this->extension)) {
 			throw new \InvalidArgumentException('Check parameters for get the requested file!');
 		}
-		$path = $this->getPath() . $this->filename . $this->extension;
+		$path = $this->getPath() . $this->uid . $this->extension;
 		$this->contentTypeHeader($this->mimeType);
 		readfile($path);
 		exit;
@@ -456,17 +445,6 @@ class File extends AbstractModel
 	private function contentTypeHeader(string $mimeType): void
 	{
 		header('Content-Type: ' . $mimeType);
-	}
-
-	public function getFilename(): string
-	{
-		return $this->filename;
-	}
-
-	public function setFilename(string $filename): File
-	{
-		$this->filename = $filename;
-		return $this;
 	}
 
 	public function getBase64(): ?string
