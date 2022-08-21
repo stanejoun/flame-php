@@ -82,6 +82,16 @@ class File extends AbstractModel
 		return self::getPath($storageLocation, $public) . md5(uniqid('filename-', true));
 	}
 
+	public static function getExtensionFromMimeType(string $mimeType): string
+	{
+		foreach (self::AVAILABLE_MIME_TYPES as $extension => $currentMimeType) {
+			if ($currentMimeType === $mimeType) {
+				return $extension;
+			}
+		}
+		throw new BusinessException('The mime type is not supported by the application.');
+	}
+
 	public static function upload(string $inputName, string $storageLocation = '/', bool $public = false): self|array
 	{
 		$storageLocation = (str_starts_with($storageLocation, '/')) ? substr($storageLocation, 1) : $storageLocation;
