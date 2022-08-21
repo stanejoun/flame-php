@@ -74,9 +74,12 @@ class File extends AbstractModel
 		return ($public) ? DOCUMENT_ROOT . $storageLocation : FILES . $storageLocation;
 	}
 
-	public static function generateFilename(string $storageLocation = '/', string $extension, bool $public = false): string
+	public static function generateFilename(string $storageLocation = '/', string $extension = '', bool $public = false): string
 	{
-		return self::getPath() . md5(uniqid('filename-', true)) . '.' . $extension;
+		if ($extension) {
+			return self::getPath($storageLocation, $public) . md5(uniqid('filename-', true)) . '.' . $extension;
+		}
+		return self::getPath($storageLocation, $public) . md5(uniqid('filename-', true));
 	}
 
 	public static function upload(string $inputName, string $storageLocation = '/', bool $public = false): self|array
