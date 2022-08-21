@@ -69,7 +69,7 @@ class File extends AbstractModel
 		}
 	}
 
-	public static function generatePath(string $storageLocation = '/', bool $public = false): string
+	public static function getFilePath(string $storageLocation = '/', bool $public = false): string
 	{
 		$path = ($public) ? DOCUMENT_ROOT . $storageLocation : FILES . $storageLocation;
 		if (!file_exists($path)) {
@@ -78,12 +78,13 @@ class File extends AbstractModel
 		return $path;
 	}
 
-	public static function generateFilename(?string $extension = null): string
+	public static function generateFilename(?string $name = null): string
 	{
-		if ($extension) {
-			return md5(uniqid('filename-', true)) . '.' . $extension;
+		if ($name) {
+			return md5(uniqid('filename_', true) . $name);
+		} else {
+			return md5(uniqid('filename_', true));
 		}
-		return md5(uniqid('filename-', true));
 	}
 
 	public static function getMimeTypeFromBase64(string $base64): string
@@ -118,7 +119,7 @@ class File extends AbstractModel
 	{
 		$storageLocation = (str_starts_with($storageLocation, '/')) ? substr($storageLocation, 1) : $storageLocation;
 		$storageLocation = (!empty($storageLocation) && $storageLocation !== '/' && !str_ends_with($storageLocation, '/')) ? "$storageLocation/" : $storageLocation;
-		$path = self::generatePath($storageLocation, $public);
+		$path = self::getFilePath($storageLocation, $public);
 		if (Request::hasFiles($inputName)) {
 			if (is_array($_FILES[$inputName]['name'])) {
 				$files = [];
@@ -155,20 +156,19 @@ class File extends AbstractModel
 		if (!is_uploaded_file($tmpName)) {
 			throw new \Exception('Unable to upload the file: "' . $tmpName . '"!');
 		}
-		$saveFileName = md5(uniqid('filename_', true) . $name);
+		$saveFileName = self::generateFilename($name);
 		if (!move_uploaded_file($tmpName, $path . $saveFileName . '.' . $extension)) {
 			throw new BusinessException([$name => Translator::translate('The file upload has failed!')]);
 		}
 		if (!file_exists($path . $saveFileName . '.' . $extension)) {
 			throw new BusinessException(Translator::translate('The file upload has failed!'));
 		}
-		$filename = $saveFileName . '.' . $extension;
 		$name = basename($name, '.' . $extension);
 		$file->hydrate([
 			'name' => $name,
-			'uid' => $saveFileName,
+			'uid' => md5(uniqid('file-uid-', true) . $saveFileName),
 			'path' => $path,
-			'filename' => $filename,
+			'filename' => $saveFileName,
 			'fileSize' => $fileSize,
 			'mimeType' => $mimeType,
 			'extension' => $extension,
@@ -385,8 +385,8 @@ class File extends AbstractModel
 
 	public function delete(): void
 	{
-		if (!unlink($this->path . $this->filename)) {
-			throw new \Exception('Unable to delete this file: "' . $this->path . $this->filename . '"!');
+		if (!unlink($this->path . $this->filename . $this->extension)) {
+			throw new \Exception('Unable to delete this file: "' . $this->path . $this->filename . $this->extension . '"!');
 		}
 		parent::delete();
 	}
@@ -405,7 +405,7 @@ class File extends AbstractModel
 		if ($this->restrictToUserId && (!Authentication::$AUTHENTICATED_USER || Authentication::$AUTHENTICATED_USER->getId() !== $this->restrictToUserId)) {
 			throw new ForbiddenException('This file is for another user.');
 		}
-		if (!preg_match('([a-zA-Z0-9./-]+)', $this->filename)) {
+		if (!preg_match('([a-zA-Z0-9./-]+)', $this->filename . $this->extension)) {
 			throw new \InvalidArgumentException('Invalid filename!');
 		}
 		if (!in_array($this->mimeType, self::AVAILABLE_MIME_TYPES)) {
@@ -416,7 +416,7 @@ class File extends AbstractModel
 			$this->expiredAt = time() - 1800;
 			$this->save();
 		}
-		$path = $this->getPath() . $this->filename;
+		$path = $this->getPath() . $this->filename . $this->extension;
 		$this->downloadHeader($path);
 		readfile($path);
 		exit;
@@ -444,10 +444,10 @@ class File extends AbstractModel
 		if ($this->restrictToUserId && (!Authentication::$AUTHENTICATED_USER || Authentication::$AUTHENTICATED_USER->getId() !== $this->restrictToUserId)) {
 			throw new ForbiddenException('This file is for another user.');
 		}
-		if (!preg_match('(image|sound|video)', $media) || !preg_match('([a-zA-Z0-9./-]+)', $this->filename)) {
+		if (!preg_match('(image|sound|video)', $media) || !preg_match('([a-zA-Z0-9./-]+)', $this->filename . $this->extension)) {
 			throw new \InvalidArgumentException('Check parameters for get the requested file!');
 		}
-		$path = $this->getPath()  . $this->filename;
+		$path = $this->getPath() . $this->filename . $this->extension;
 		$this->contentTypeHeader($this->mimeType);
 		readfile($path);
 		exit;
