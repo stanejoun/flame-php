@@ -45,7 +45,7 @@ class ImageFile extends File
 	public function adapter(): \Intervention\Image\Image
 	{
 		if (!isset($this->_adapter)) {
-			$this->_adapter = \Intervention\Image\ImageManagerStatic::make($this->filename);
+			$this->_adapter = \Intervention\Image\ImageManagerStatic::make($this->path . $this->filename);
 		}
 		return $this->_adapter;
 	}
